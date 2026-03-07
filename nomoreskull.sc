@@ -1,5 +1,5 @@
-run('say NoMoreSkull Carpet Script Loaded')
-max_count = 100
+run('say NoMoreSkull Carpet Script Loaded');
+max_count = 100;
 run('scoreboard objectives add wither_skull_count dummy wither_skull_count');
 run('scoreboard players set wither_skull_max wither_skull_count ' + max_count);
 
