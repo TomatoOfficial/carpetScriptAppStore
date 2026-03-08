@@ -3,6 +3,7 @@ global_max_count = 100;
 global_warning_message1 = '警告: 凋灵之首数量超过阈值 (' + global_max_count + ')';
 global_warning_message2 = '已自动清理';
 global_manual_message1 = '手动清理完成';
+global_manual_message2 = '本次一共清理了: ';
 
 __config() -> {
    'scope' -> 'global',
@@ -41,6 +42,7 @@ wither_skull_overkill(now_count, global_max_count) -> (
         (
             run('say '+global_warning_message1);
             run('say '+global_warning_message2);
+            run('kill @e[type=wither_skull]');
             //format('w 世界名称：', 'l ' + s('world_name'), 'w    种子：[', 'l ' + s('world_seed'), '&' + s('world_seed'), '^w 点击以复制', 'w ]'));
         );
         
@@ -48,8 +50,15 @@ wither_skull_overkill(now_count, global_max_count) -> (
 );
 
 wither_skull_manual_kill() -> (
+    run('execute as @e[type=wither_skull] run scoreboard players add wither_skull_manual wither_skull_count 1');
+    manual_heads = scoreboard('wither_skull_count', 'wither_skull_manual');
+    if(manual_heads == null,
+        manual_heads == 0
+    );
     run('say '+global_manual_message1);
+    run('say '+global_manual_message2+manual_heads+' 个凋零之首');
     run('kill @e[type=wither_skull]');
+    scoreboard('wither_skull_count', 'wither_skull_manual', 0);
 );
 
 // 初始化计分表
