@@ -1,5 +1,5 @@
 // 配置项 凋零之首清除阈值 (默认值 100)
-global_max_count = 10;
+global_max_count = 100;
 global_warning_message1 = '警告: 凋灵之首数量超过阈值 (' + global_max_count + ')';
 global_warning_message2 = '已自动清理';
 
