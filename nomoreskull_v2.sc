@@ -1,15 +1,54 @@
-run('say NoMoreSkull Carpet Script Loaded');
-max_count = 100;
-run('scoreboard objectives add wither_skull_count dummy wither_skull_count');
-run('scoreboard players set wither_skull_max wither_skull_count ' + max_count);
+// 配置项 凋零之首清除阈值 (默认值 100)
+global_max_count = 10;
+global_warning_message1 = '警告: 凋灵之首数量超过阈值 (' + global_max_count + ')';
+global_warning_message2 = '已自动清理';
 
+// 初始化信息输出
+__on_start() -> (
+    unix_time = convert_date(unix_time()); // [YYYY, MM, DD, HH, MM, SS, ...]
+    date = str(
+        '%d/%d/%d',
+        unix_time:0, unix_time:1, unix_time:2
+    );
+    time = str(
+        '%02d:%02d:%02d',
+        unix_time:3, unix_time:4, unix_time:5
+    );
+
+    print('[' + time + '] [INFO] ' + 'App \'' + system_info('app_name') + '.sc\' initialized');
+    logger('info', 'App \'' + system_info('app_name') + '.sc\' initialized');
+);  // [HH:MM:SS] [INFO] App XXXXX.sc initialized
+
+// 计分板函数
+scoreboard_init(objective, criterion, display_name) -> (
+	if(scoreboard(objective) == null,
+        scoreboard_add(objective, criterion);
+    );
+	scoreboard_property(objective, 'display_name', display_name);
+);
+
+wither_skull_overkill(now_count, global_max_count) -> (
+    if(now_count >= global_max_count,
+        (
+            run('say '+global_warning_message1);
+            run('say '+global_warning_message2);
+            run('kill @e[type=wither_skull]');
+        );
+        
+    );
+);
+
+// 初始化计分表
+scoreboard_init('wither_skull_count', 'dummy', 'wither_skull_count');
+scoreboard('wither_skull_count', 'wither_skull_max', max_count);
 
 __on_tick() -> (
 
     run('execute as @e[type=wither_skull] run scoreboard players add wither_skull_count wither_skull_count 1');
-    run('execute if score wither_skull_count wither_skull_count >= wither_skull_max wither_skull_count run say 警告: 凋灵之首数量超过阈值');
-    run('execute if score wither_skull_count wither_skull_count >= wither_skull_max wither_skull_count run say 已自动清理');
-    run('execute if score wither_skull_count wither_skull_count >= wither_skull_max wither_skull_count run kill @e[type=wither_skull]');
-    run('scoreboard players reset wither_skull_count wither_skull_count');
-);
+    now_count = scoreboard('wither_skull_count', 'wither_skull_count');
+    
+    wither_skull_overkill(now_count, global_max_count);
 
+    // 重置计分板
+    scoreboard('wither_skull_count', 'wither_skull_count', 0);
+);
