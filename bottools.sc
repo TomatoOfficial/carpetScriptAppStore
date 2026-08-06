@@ -25,8 +25,14 @@ global_datafile = 'databank';
 __on_start() -> (
     load_databank();
     team_add('Bot');
-    team_property('Bot','color','white');
+    team_property('Bot','color','gray');
     team_property('Bot','prefix',format('g BOT | '));
+);
+
+print_hint(commander, text) -> (
+    hint = '[提示]';
+    command = 'tellraw @s [{"text":"'+ hint + '",color:yellow},{"text":" ' + text + ', ",color:gray}]';
+    run(command);
 );
 
 load_databank() -> (
@@ -49,7 +55,8 @@ __on_player_connects(player) -> (
 welcome_real_player(player) -> (
     world_name = system_info('world_name');
     command = 'tellraw @a [{"text":"欢迎加入' + world_name + ', "},{"selector":"' + player + '"},{"text":"!"}]';
-    // run(command);
+    run(command);
+    // 欢迎加入 {world_name}, {player_name}!
 );
 
 __on_player_command(player, command) -> (
@@ -70,15 +77,15 @@ pending_detection(list, name) ->  (
 
 add_pending(name, commander) -> (
     if(pending_detection(global_pending, name),
-        print(commander, str('假人 %s 已在等待队列中', name));
+        print_hint(commander, str('假人 %s 已在等待队列中', name));
         return()
     );
     if(pending_detection(global_processed, name),
-        print(commander, str('假人 %s 已处理过(实际名可能不是这个反正你知道就行)', name));
+        print_hint(commander, str('假人 %s 已处理过(实际名可能不是这个反正你知道就行)', name));
         return()
     );
     global_pending += name;
-    // print(commander, str('已添加 %s 至等待队列', name));
+    // print_hint(commander, str('已添加 %s 至等待队列', name));
 );
 
 __on_tick() -> (
@@ -109,17 +116,18 @@ check_pending() -> (
 );
 
 team_fake_player(name) -> (
+    run(str('say 假人 %s 已加入!', name));
     team_add('Bot', name)
 );
 
 view_databank() -> (
     player = player();
     if(length(global_processed) == 0,
-        print(player, '当前无已处理假人'),
+        print_hint(player, '当前无已处理假人'),
     // else if
-        print(player, '此脚本已处理以下假人:');
+        print_hint(player, '此脚本已处理以下假人:');
         for(global_processed,
-            print(player, str('  - %s', _))
+            print_hint(player, str('  - %s', _))
         )
     );
 );
